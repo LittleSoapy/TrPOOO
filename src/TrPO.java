@@ -29,10 +29,10 @@ public class TrPO {
 		int Parada = 0;
 		while (Parada < CriterioDeParada) {
 			double Fitness = 0;
-			if (NumeroRandomico.nextDouble() < TaxaDeCrossover) {//fazer a roleta para criar 40 casais, e usar o taxa de crossover para ver se casa casal vai cruzar
 			// Roleta
 			ArrayList<Cromossomo> escolhidos = new ArrayList<Cromossomo>();
-			for (int i = 0; i < 2; i++) {
+
+			for (int i = 0; i < TamanhoDaPopulacao; i++) {
 
 				double sum = 0;
 				double sumInvert = 0;
@@ -61,64 +61,68 @@ public class TrPO {
 
 			// Crossover
 			ArrayList<Cromossomo> filhos = new ArrayList<Cromossomo>();
-			for (int a = 0; a < 2; a++) {
-				int[] mask = new int[Tabela.length];
-				int[] newCromo = new int[Tabela.length];
-				ArrayList<Integer> sobrando = new ArrayList<Integer>();
-				
-				for (int i = 0; i < newCromo.length; i++) {
-					newCromo[i] = -2;
-				}
-				for (int i = 0; i < mask.length; i++) {
-					mask[i] = NumeroRandomico.nextInt(2);
-				}
-				Collections.sort(escolhidos, new CustomComparator());
 
-				for (int i = 0; i < newCromo.length; i++) {
-					if (mask[i] == 1) {
-						newCromo[i] = escolhidos.get(0).getCromossomo().get(i);
-					} else {
-						newCromo[i] = -1;
-						sobrando.add(escolhidos.get(0).getCromossomo().get(i));
-					}
-				}
+			for (int casal = 0; casal < escolhidos.size(); casal += 2) {
+				if (NumeroRandomico.nextDouble() < TaxaDeCrossover) {
+					for (int filho = 0; filho < 2; filho++) {
+						int[] mask = new int[Tabela.length];
+						int[] newCromo = new int[Tabela.length];
+						ArrayList<Integer> sobrando = new ArrayList<Integer>();
 
-				for (int i = 0; i < newCromo.length; i++) {
-					if (newCromo[i] == -1) {
-						boolean aux = true;
-						for (int j = 0; j < newCromo.length; j++) {
-							if (escolhidos.get(1).getCromossomo().get(i) == newCromo[j]) {
-								aux = false;
-								break;
+						for (int i = 0; i < newCromo.length; i++) {
+							newCromo[i] = -2;
+						}
+						for (int i = 0; i < mask.length; i++) {
+							mask[i] = NumeroRandomico.nextInt(2);
+						}
+
+						for (int i = 0; i < newCromo.length; i++) {
+							if (mask[i] == 1) {
+								newCromo[i] = escolhidos.get(casal).getCromossomo().get(i);
+							} else {
+								newCromo[i] = -1;
+								sobrando.add(escolhidos.get(casal).getCromossomo().get(i));
 							}
 						}
-						if (aux) {
-							newCromo[i] = escolhidos.get(1).getCromossomo().get(i);
-							for (int j = 0; j < sobrando.size(); j++) {
-								if (escolhidos.get(1).getCromossomo().get(i) == sobrando.get(j)) {
-									sobrando.remove(j);
-									break;
+
+						for (int i = 0; i < newCromo.length; i++) {
+							if (newCromo[i] == -1) {
+								boolean aux = true;
+								for (int j = 0; j < newCromo.length; j++) {
+									if (escolhidos.get(casal + 1).getCromossomo().get(i) == newCromo[j]) {
+										aux = false;
+										break;
+									}
+								}
+								if (aux) {
+									newCromo[i] = escolhidos.get(casal + 1).getCromossomo().get(i);
+									for (int j = 0; j < sobrando.size(); j++) {
+										if (escolhidos.get(casal + 1).getCromossomo().get(i) == sobrando.get(j)) {
+											sobrando.remove(j);
+											break;
+										}
+									}
+
 								}
 							}
 
 						}
+						Collections.shuffle(sobrando);
+						for (int i = 0; i < newCromo.length; i++) {
+							if (newCromo[i] == -1) {
+								newCromo[i] = sobrando.remove(0);
+							}
+						}
+						filhos.add(new Cromossomo(newCromo, Tabela));
 					}
-
 				}
-				Collections.shuffle(sobrando);
-				for (int i = 0; i < newCromo.length; i++) {
-					if (newCromo[i] == -1) {
-						newCromo[i] = sobrando.remove(0);
-					}
-				}
-				filhos.add(new Cromossomo(newCromo, Tabela));
 			}
 			// Fim Crossover
 
 			// Mutacao
 			for (Cromossomo cromossomo : filhos) {
 				if (NumeroRandomico.nextDouble() < TaxaDeMutacao) {
-					cromossomo.Randomize(Tabela);//inversao
+					cromossomo.Randomize(Tabela);// inversao
 				}
 			}
 			// Fim Mutacao
@@ -136,16 +140,19 @@ public class TrPO {
 					populacao.remove(i);
 				}
 			}
-		}
+
 			Fitness = populacao.get(0).getFitness();
-			
+
 			if (Fitness < BetterFitness) {
 				BetterFitness = Fitness;
 				Parada = 0;
+				System.out.println(BetterFitness);
 			} else {
 				Parada++;
 			}
-			System.out.println(BetterFitness);
+		}
+		for (int i = 0; i < Tabela.length; i++) {
+			System.out.print(populacao.get(0).getCromossomo().get(i) + " ");
 		}
 	}
 
