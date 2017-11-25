@@ -29,7 +29,7 @@ public class TrPO {
 		int Parada = 0;
 		while (Parada < CriterioDeParada) {
 			double Fitness = 0;
-			if (NumeroRandomico.nextDouble() < TaxaDeCrossover) {
+			if (NumeroRandomico.nextDouble() < TaxaDeCrossover) {//fazer a roleta para criar 40 casais, e usar o taxa de crossover para ver se casa casal vai cruzar
 			// Roleta
 			ArrayList<Cromossomo> escolhidos = new ArrayList<Cromossomo>();
 			for (int i = 0; i < 2; i++) {
@@ -118,7 +118,7 @@ public class TrPO {
 			// Mutacao
 			for (Cromossomo cromossomo : filhos) {
 				if (NumeroRandomico.nextDouble() < TaxaDeMutacao) {
-					cromossomo.Randomize(Tabela);
+					cromossomo.Randomize(Tabela);//inversao
 				}
 			}
 			// Fim Mutacao
